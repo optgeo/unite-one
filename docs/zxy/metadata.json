@@ -1,0 +1,14 @@
+{
+"name": "tiles.mbtiles",
+"description": "tiles.mbtiles",
+"version": "2",
+"minzoom": "10",
+"maxzoom": "12",
+"center": "136.450195,34.849867,12",
+"bounds": "129.814453,31.278551,144.492187,45.089036",
+"type": "overlay",
+"format": "pbf",
+"generator": "tile-join v1.36.0",
+"generator_options": "tippecanoe '--minimum-zoom=10' '--maximum-zoom=12' --force --coalesce --detect-shared-borders -o tiles.mbtiles; tile-join --force --no-tile-compression '--output-to-directory=docs/zxy' --no-tile-size-limit tiles.mbtiles",
+"json": "{\"vector_layers\": [ { \"id\": \"one\", \"description\": \"\", \"minzoom\": 10, \"maxzoom\": 12, \"fields\": {\"code\": \"Mixed\"} } ],\"tilestats\": {\"layerCount\": 1,\"layers\": [{\"layer\": \"one\",\"count\": 937938,\"geometry\": \"Polygon\",\"attributeCount\": 1,\"attributes\": [{\"attribute\": \"code\",\"count\": 28,\"type\": \"mixed\",\"values\": [10909,11001,11002,11003,11004,11005,11006,11007,11008,11010,11014,\"凹地・浅い谷\",\"台地・段丘\",\"地すべり地形\",\"天井川\",\"山地\",\"山麓堆積地形\",\"崖・段丘崖\",\"後背低地・湿地\",\"扇状地\",\"旧水部\",\"旧河道\",\"水部\",\"氾濫平野\",\"河川敷・浜\",\"砂州・砂丘\",\"自然堤防\",\"落堀\"],\"min\": 10909,\"max\": 11014}]}]}}"
+}

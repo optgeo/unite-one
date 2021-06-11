@@ -1,0 +1,169 @@
+<!DOCTYPE html><html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0" />
+<link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/v2.3.0/mapbox-gl.css" />
+<script src="https://api.mapbox.com/mapbox-gl-js/v2.3.0/mapbox-gl.js"></script>
+</head>
+<body>
+<div id="map" style="position:absolute;top:0;left:0;bottom:0;right:0;"></div>
+<script>
+// The original version is https://github.com/indigo-lab/plateau-tokyo23ku-building-mvt-2020. Thanks!
+// 地理院　Vector タイルのスタイルを読み出して、そこに独自のデータを付加していく
+fetch("https://gsi-cyberjapan.github.io/gsivectortile-3d-like-building/building3d.json")
+  .then(res => res.json()).then(style => {
+  // オーバーズームできるよう、maxzoom を拡張する
+  for(layer of style.layers) {
+    if (layer.maxzoom >= 17) layer.maxzoom = 24
+  }
+  
+  // WEBP 標高タイルを追加する
+  style.sources.h = {
+    maxzoom: 13,
+    minzoom: 3,
+    tileSize: 512,
+    tiles: [
+      "https://optgeo.github.io/10b512-7-113-50/zxy/{z}/{x}/{y}.webp"
+    ],
+    type: "raster-dem"
+  }
+
+  // 地形分類タイルを追加する
+  style.sources.v = {
+    type: "vector",
+    tiles: [
+      "https://optgeo.github.io/unite-one/zxy/{z}/{x}/{y}.pbf"
+    ],
+    attribution: "国土地理院ベクトルタイル提供実験",
+    minzoom: 10,
+    maxzoom: 12
+  }
+  
+  // 地形分類タイルのスタイルを追加する
+  style.layers.unshift({
+    "id": "one",
+    "paint": {
+      "fill-color": [
+        "match",
+        [
+          "get",
+          "code"
+        ],
+        "山地",
+        "#d9cbae",
+        "崖・段丘崖",
+        "#9466ab",
+        "地すべり地形",
+        "#cc99ff",
+        "台地・段丘",
+        "#ffaa00",
+        "山麓堆積地形",
+        "#99804d",
+        "扇状地",
+        "#cacc60",
+        "自然堤防",
+        "#ffff33",
+        "天井川",
+        "#fbe09d",
+        "砂州・砂丘",
+        "#ffff99",
+        "凹地・浅い谷",
+        "#a3cc7e",
+        "氾濫平野",
+        "#bbff99",
+        "後背低地・湿地",
+        "#00d1a4",
+        "旧河道",
+        "#6699ff",
+        "落掘",
+        "#1f9999",
+        "河川敷・浜",
+        "#9f9fc4",
+        "水部",
+        "#e5ffff",
+        "旧水部",
+        "#779999",
+        "#f00"
+      ]
+    },
+    "source": "v",
+    "source-layer": "one",
+    "type": "fill"
+  })
+  
+  // 背景を入れておく。これは、三次元表示したときに空の色が地面に透けないようにするため。
+  style.layers.unshift({
+    id: "background",
+    paint: {
+    　"background-color": [
+        "rgb",
+        255,
+        255,
+        255
+      ]
+    },
+    type: "background"
+  })
+ 
+  // 空を入れる
+  style.layers.unshift({
+    id: "sky",
+    paint: {
+      "sky-type": "atmosphere"
+    },
+    type: "sky"
+  })
+ 
+  // 地形を立ち上げる
+  style.terrain = {
+    source: "h"
+  }
+  
+  // 霞を入れる
+  style.fog = {
+    range: [-2, 10],
+    color: [
+      "rgb",
+      255,
+      255,
+      255
+   ],
+   "horizon-blend": 0.1
+  }
+
+  mapboxgl.accessToken = 'pk.eyJ1IjoiaGZ1IiwiYSI6ImlRSGJVUTAifQ.rTx380smyvPc1gUfZv1cmw';
+  map = new mapboxgl.Map({
+    container: "map",
+    center: [139.68786, 35.68355],
+    zoom: 14.65,
+    pitch: 60,
+    bearing: 22,
+    hash: true,
+    style: style
+  })
+  map.addControl(new mapboxgl.NavigationControl())
+  map.addControl(new mapboxgl.ScaleControl({
+    maxWidth: 200, unit: "metric"
+  }))
+  
+  let voice = null
+  for(let v of speechSynthesis.getVoices()) {
+    console.log(v)
+    if (v.name == "Kyoko") voice = v
+  }
+
+  map.on('load', function() {
+    console.log(speechSynthesis.getVoices())
+    map.on('click', 'one', function(e) {
+      let utterance = new SpeechSynthesisUtterance()
+      utterance.lang = "ja-JP"
+      utterance.text = e.features[0].properties.code
+      if (voice) utterance.voice = voice
+      speechSynthesis.cancel()
+      speechSynthesis.speak(utterance)
+    })
+  })
+})
+</script>
+</body>
+</html>
